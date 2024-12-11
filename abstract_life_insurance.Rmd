@@ -11,7 +11,7 @@ output:
     toc: true         # Gera o sumário automaticamente
     toc_depth: 2      # Limita o sumário a dois níveis
   pdf_document: default
-title: 'Resumo do Artigo "Statistics for life insurance with R (lifecontingencies)"
+title: 'Resumo do Artigo "Statistics for life insurance with R (lifecontingencies)"'
 params:
   digits: 4
 header-includes: |
@@ -25,10 +25,10 @@ header-includes: |
 
 \newpage
 
-```{r, warning = FALSE, message = FALSE}
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
 library(lifecontingencies)
 ```
-
 # Introdução
 
 O pacote R `lifecontigencies` é um pacote atuarial para fazer calculos estatísticos e matematicos para analise de sobrevivência. 
@@ -39,5 +39,95 @@ O pacote R `lifecontigencies` é um pacote atuarial para fazer calculos estatís
 Para construir a tabela de mortalidade vamos pegar a tabela completa de mortaldiade de homens disponibilizado pelo IBGE do ano de 2023.
 
 ```{r}
-table_ibg = read.csv('https://github.com/gabrieldadcarvalho/introduction_to_lossof_variables_modeling_in_actuarial_science/blob/1f3ad20ebff045ab57fdc6d96c1ab5f37ac2bbcf/homens.xlsx', header=TRUE)
+df = read.csv("https://raw.githubusercontent.com/gabrieldadcarvalho/introduction_to_lossof_variables_modeling_in_actuarial_science/refs/heads/main/homens.csv", header=TRUE, sep=',')
+
+# Criando a tabela com o pacote lifecontingencies
+Lt = new("lifetable", x = df[,1], lx = df[,3], name='Life Table IBGE 2023 (H)')
+print(Lt)
 ```
+
+Onde:
+
+-   $x$ idade
+-   $l$ pessoas vivas na idade $x$
+-   $p_x$ probabilidade de de sobreviver a idade $x$.
+-   $e_x$ número esperado de anos que uma pessoa de idade $x$ vai sobreviver.
+
+Podendo ser calculado como:
+
+\begin{equation}
+p_x = \frac{l_{x+1}}{lx}
+\end{equation}
+
+
+\begin{equation}
+e_x = \frac{1}{l_x}(50+\sum_{i = {x_1}}^{\omega} d_i)s
+\end{equation}
+
+
+O $\omega$ é a idade máxima em que a população de estudo alcança, para buscar essa idade na tabela basta usar a função
+
+```{r}
+getOmega(Lt)
+```
+
+## Criação da tabua apartir da probabilida
+
+Existem algumas tabuas em que só é explanado as idades $x$ e suas respectivas probabilidades de sobrevivência $p_x$. Mas só basta ela para criarmos uma tabela, ela é feita começando com a populalçao com 1 pessoa $l_x = 1$.
+
+```{r}
+probSurv = numeric(length(df[,3]))
+for (i in 1:length(df[,3])){
+  probSurv[i] = df[i+1,3] / df[i,3] 
+  if (i == length(df[,3])){
+    probSurv[i] = 0
+  }
+}
+```
+
+```{r}
+Lt2 = probs2lifetable(probSurv, type='px', name = "Life table IBGE 2023 (H) obtained by usi
+ng raw probabilities")
+
+Lt2
+```
+
+# Tabua atuarial 
+
+A tabua atuarial é uma ampliação da tabua de mortalidade, com adição de termos de comutação, onde já é feito calculos da descapitação monetária junto com a probabilidade de vida ou morte para calculos de fundo de aposentadoria ou pagamento de seguro.
+
+```{r}
+LtAct = new("actuarialtable", x = Lt@x, lx = Lt@lx, name='IBGE 2023 HOMEM ACT TABLE')
+LtAct
+```
+
+# Funções de probabilidade
+
+-   $dxt$ número de mortos entre a idade $x$ e $x+t$.
+-   $pxt$ probabiliade de uma pessoa de idade $x$ sobreviver até a idade $x+t$.
+-   $qxt$ probabilidade de uma pessoa de idade $x$ não chegar com vida até a idade $x+t$.
+-   $mxt$ taxa de mortalidade central.
+-   $exn$ expectativa de vida entre a idade $x$ até $x+t$.
+
+
+```{r}
+# Probabilidade de uma pessoa de 20 anos sobreviver até 90 anos
+pxt(LtAct, 20, 70)
+
+# Probabilidade de uma pessoa de 20 anos morrer ao longo dos próximos 5 anos
+qxt(LtAct, 20, 5)
+
+# Probabilidade de uma pessoa de 20 anos sobreviver até 25 anos e morrer entre 25  27 anos
+pxt(LtAct, 20, 5)*qxt(LtAct, 25, 2)
+```
+
+
+
+
+
+
+
+
+
+
+
