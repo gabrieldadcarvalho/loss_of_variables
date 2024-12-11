@@ -1,0 +1,43 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+author: "Gabriel D'assumpção de Carvalho"
+date: "2024-12-09"
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true         # Gera o sumário automaticamente
+    toc_depth: 2      # Limita o sumário a dois níveis
+  pdf_document: default
+title: 'Resumo do Artigo "Statistics for life insurance with R (lifecontingencies)"
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}  % Adiciona pacotes para cabeçalhos e rodapés personalizados
+  \pagestyle{fancy}
+  \fancyhead[L]{Resumo do lifecontingencies}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+---
+
+\newpage
+
+```{r, warning = FALSE, message = FALSE}
+library(lifecontingencies)
+```
+
+# Introdução
+
+O pacote R `lifecontigencies` é um pacote atuarial para fazer calculos estatísticos e matematicos para analise de sobrevivência. 
+
+
+# Tabela de mortalidade
+
+Para construir a tabela de mortalidade vamos pegar a tabela completa de mortaldiade de homens disponibilizado pelo IBGE do ano de 2023.
+
+```{r}
+table_ibg = read.csv(file.choose(), header=TRUE)
+```
