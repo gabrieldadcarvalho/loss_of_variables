@@ -39,5 +39,5 @@ O pacote R `lifecontigencies` é um pacote atuarial para fazer calculos estatís
 Para construir a tabela de mortalidade vamos pegar a tabela completa de mortaldiade de homens disponibilizado pelo IBGE do ano de 2023.
 
 ```{r}
-table_ibg = read.csv(file.choose(), header=TRUE)
+table_ibg = read.csv('https://github.com/gabrieldadcarvalho/introduction_to_lossof_variables_modeling_in_actuarial_science/blob/1f3ad20ebff045ab57fdc6d96c1ab5f37ac2bbcf/homens.xlsx', header=TRUE)
 ```
