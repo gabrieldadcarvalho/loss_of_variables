@@ -1,0 +1,78 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+author: "Gabriel D'assumpção de Carvalho"
+date: "2024-12-09"
+output:
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
+  pdf_document: default
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true
+    toc_depth: 2
+title: 'Paper Abstract: "An Introduction To Risk Measures for Actuarial Applications"'
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}  % Adiciona pacotes para cabeçalhos e rodapés personalizados
+  \pagestyle{fancy}
+  \fancyhead[L]{Paper Abstract}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+---
+
+\newpage
+
+# Objetivo
+
+Este documento apresenta um resumo do artigo [**An Introduction To Risk Measures for Actuarial Applications**](https://www.casact.org/sites/default/files/database/studynotes_hardy4.pdf), abordando os seguintes tópicos do artigo:
+
+1.  **Introdução**
+
+2.  **Medidas de Risco para Requisitos de Capital**
+
+    2.1 **Distribuições de Perdas Exemplares**
+
+    2.2 **Value at Risk (VaR) - A Medida de Risco Quantílica**
+
+    2.3 **Conditional Tail Expectation (CTE)**
+
+    2.4 **Comentários sobre as Medidas de Risco Quantílica e CTE**
+
+# Introdução
+
+O artigo introduz o conceito de variáveis modeladas pela ciência atuarial, que frequentemente envolvem a distribuição de perdas associadas a riscos financeiros e de seguros. Exemplos incluem a distribuição de Poisson para modelar perdas decorrentes de sinistros em apólices de seguros e a distribuição de lucros e perdas no setor bancário.
+
+As primeiras medidas de risco na análise atuarial foram desenvolvidas para precificação de prêmios. O risco de uma variável aleatória $X$ é mensurado por meio de um funcional de risco $H$, definido como:
+
+\begin{equation}
+H : X \Rightarrow \mathbb{R}
+\end{equation}
+
+Com base nesse conceito, o artigo apresenta métodos de precificação de prêmios, incluindo:
+
+- **Princípio do Valor Esperado do Prêmio**: O prêmio é determinado pelo valor esperado da perda, acrescido de uma margem de segurança \( \theta \), que representa um fator de ajuste para risco:
+
+\begin{equation}
+H(X) = (1+\theta)\mathbb{E}[X], \hspace{0.3cm} \forall \hspace{0.2cm} \theta \geq 0
+\end{equation}
+
+- **Princípio do Desvio Padrão do Prêmio**: Aqui, o prêmio incorpora o desvio padrão da perda como um fator adicional de risco. Isso permite que a precificação leve em conta a dispersão das perdas:
+
+\begin{equation}
+H(X) = \mathbb{E}[X] + \theta \sqrt{\mathbb{V}[X]}, \hspace{0.3cm} \forall \hspace{0.2cm} \theta \geq 0
+\end{equation}
+
+- **Princípio da Variância do Prêmio**: Nesta abordagem, a variância da perda é utilizada como um fator de ajuste para o risco, refletindo o impacto da incerteza sobre o valor esperado da perda:
+
+\begin{equation}
+H(X) = \mathbb{E}[X] + \theta \mathbb{V}[X], \hspace{0.3cm} \forall \hspace{0.2cm} \theta \geq 0
+\end{equation}
+
+
