@@ -1,0 +1,195 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+author: "Gabriel D'assumpção de Carvalho"
+date: "2025-03-16"
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true         # Gera o sumário automaticamente
+    toc_depth: 2      # Limita o sumário a dois níveis
+  pdf_document: default
+title: 'Lista de Exercícios 1'
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}  % Adiciona pacotes para cabeçalhos e rodapés personalizados
+  \pagestyle{fancy}
+  \fancyhead[L]{Resumo do Actuar}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+---
+
+\newpage
+
+# Bibliotecas
+
+```{r,  warning=FALSE,  message=FALSE}
+#install.packages('moments')
+library(ggplot2)
+library(actuar) 
+library(moments)
+```
+
+# Questão 1
+
+Uma amostra de pagamentos de contratos de seguro saúde produziu uma média amostral anual de \$1, 300 e um desvio padrão de \$400 . Para um próximo ano, espera-se comercializar uma carteira com 2500 clientes. Utilize o Teorema do Limite Central a fimm de estimar a probabilidade de que os pagamentos em benefícios ultrapasse o valor esperado em 1%.
+
+```{r, warning=FALSE}
+n = 2500
+Ex = 1300
+dp = 400
+
+Tdp = dp * sqrt(n)
+Tloss = n * Ex
+
+b1 = Tloss * 1.01
+
+z = (b1 - Tloss)/Tdp
+
+p1 = 1-pnorm(z)
+print(p1) # 0.05208128
+```
+
+Como o teorema do limite central afirma que uma amostra tendendo ao infinito segue uma N(0,1), a probabilidade do pagamento do benefício ultrapassar 1% do valor esperado (\$3.282.500) é de aproximadamente 5.21%.
+
+# Questão 2
+
+Analise as distribuições lognormal, Pareto (Tipo II) e Gama com respeito ao comportamento caudal. Como sugestão, utilize as distribuições Gamma (0.2, 500) , lognormal(3.709290, 1.338566²) e Pareto (2.5, 150). Primeiro mostre que, assim definidas, estas distribuições possuem médias e desvios padrões iguais. Em seguinda, utilize o computador para avaliar o comprimento caudal destas distribuições, estabelecendo uma ordem, da 'mais densa' para a 'mais leve'. Adicionalmente, esboce os gráficos das funções de sobrevivência e taxa de risco para cada um dos casos analisados.
+
+```{r,  warning=FALSE}
+n = 10000
+
+g_shape = 0.2
+g_scale = 500
+
+l_mean = 3.709290 
+l_var = 1.338566**2
+l_sd = sqrt(l_var)
+
+p_shape = 2.5
+p_scale = 150
+
+gamma_sample = rgamma(n, shape = g_shape, scale = g_scale)
+lognormal_sample = rlnorm(n, meanlog = l_mean, sdlog=l_sd)
+pareto_sample = rpareto(n, shape = p_shape, scale = p_scale)
+
+df = data.frame(Distribution = c('Gamma', 'Lognormal', 'Pereto'), Mean = c(mean(gamma_sample), mean(lognormal_sample), mean(pareto_sample)), StandardDeviation = c(sd(gamma_sample), sd(lognormal_sample), sd(pareto_sample)))
+
+
+print(df)
+```
+
+No Gráfico acima podemos ver as distribuições e suas respectivas médias e desvio padrão, foram geradas 10 mil de amostras aleatórios para cada uma das distribuição, podemos ver que a média se aproxima de 100 e o desvio padrão de 223, podemos ver uma certa diferênça no desvio padrão da lognormal e pareto por serem distribuição mais complexar de se contrar a sua variância.
+
+```{r, warning=FALSE}
+kurtosi_gamma = kurtosis(gamma_sample)
+kurtosi_lognormal= kurtosis(gamma_sample)
+kurtosi_pareto = kurtosis(pareto_sample)
+
+df = data.frame(Distribution = c('Gamma', 'Lognormal', 'Pereto'), Kurtosi = c(kurtosi_gamma, kurtosi_lognormal,kurtosi_pareto))
+
+print(df)
+```
+
+Como pode ser visto na tabela acima, foi utilizado a kurtosi que á a razão entre o quarto momento da média e do desvio padrão, ela mede o achatamento da distribuição, portanto quanto maior essa estatistica maior vai ser as probabilidade das extremidades.
+
+```{r, warning=FALSE}
+q = seq(0, 5000, length.out = n)
+
+S_gamma =  1 - pgamma(q, shape = g_shape, scale = g_scale)
+F_gamma = 1 - S_gamma
+
+S_lognormal = 1 - plnorm(q, meanlog = l_mean, sdlog = l_sd)
+F_lognormal = 1 - S_lognormal
+
+S_pareto = 1 - ppareto(q, shape = p_shape, scale = p_scale)
+F_pareto = 1 - S_pareto
+
+# Criar um dataframe para evitar erro de dimensionamento
+df = data.frame(
+  q = rep(q, 3),
+  S = c(S_gamma, S_pareto, S_lognormal),
+  F = c(F_gamma, F_pareto, F_lognormal), 
+  Distribuição = rep(c("Gamma", "Pareto", "Lognormal"), each = n)
+)
+```
+
+```{r, warning=FALSE}
+ggplot(df, aes(x = q, y = S, color = Distribuição)) +
+  geom_line(size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "solid") +
+  labs(
+    title = "Comparação das Funções de Sobrevivência",
+    x = "Perda",
+    y = "S(x)",
+    color = "Distribuição"
+  ) +
+  scale_color_manual(values = c("Gamma" = "blue", "Pareto" = "red", "Lognormal" = "green")) +
+  scale_y_log10() +  # Escala log para destacar diferenças nas caudas
+  theme_minimal()
+```
+
+```{r, warning=FALSE}
+ggplot(df, aes(x = q, y = F, color = Distribuição)) +
+  geom_line(size = 1) +
+  geom_vline(xintercept = 0, color = "black", size = 0.5, linetype = "solid") +
+  labs(
+    title = "Comparação das Funções de Acumulada",
+    x = "Perda",
+    y = "F(x)",
+    color = "Distribuição"
+  ) +
+  scale_color_manual(values = c("Gamma" = "blue", "Pareto" = "red", "Lognormal" = "green")) +
+  #scale_y_log10() +  # Escala log para destacar diferenças nas caudas
+  theme_minimal()
+```
+
+# Questão 3
+
+Considere a variável aleatória X tenho função densidade de probabilidade defnida por \(f(x) = (1 + 2x^2)e^{-2x}, \quad x \leq 0\).
+
+(i) Determine a função de sobrevivência S(x).
+
+**Resposta:**
+
+\begin{equation}
+S(x) = 1 - \int_0^x f(t)dt = 1 - \int_0^x (1 + 2t^2)e^{-2t}dt.
+\end{equation}
+
+(ii) Determine a função taxa de risco h(x).
+
+**Resposta:**
+
+\begin{equation}
+h(x) = \frac{f(x)}{S(x)} = \frac{S'(x)}{S(x)} = -\frac{d}{dx}\log(S(x)).
+\end{equation}
+
+(iii) Determine a função \(S_{e}(x)\) associada a \`distribuição de equilíbrio'.
+
+**Resposta:**
+
+\begin{equation}
+S_{e}(x) = \frac{\int_{x}^{\infty} S(t),dt}{E[X]} =  \frac{\int_{x}^{\infty} S(t),dt}{e(0)}.
+\end{equation}
+
+(iv) Determine a função de vida média residual e(x).
+
+**Resposta:**
+
+\begin{equation}
+e(x) = \frac{\int_{x}^{\infty} tf(t),dt}{S(x)}.
+\end{equation}
+
+(v) Determine os limites \(\lim_{x \to \infty}\) h(x) e \(\lim_{x \to \infty} e(x)\).
+
+**Resposta:**
+
+(vi) Mostre que \(e(x)\) é estritamente decrescente, mas \(h(x)\) não é estritamente crescente.
+
+**Resposta:**
+
+(vii) Esboce graficamente os resultados encontrados nos itens (i) a (vi).
