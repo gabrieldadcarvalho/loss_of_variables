@@ -40,18 +40,14 @@ Uma amostra de pagamentos de contratos de seguro saúde produziu uma média amos
 
 ```{r, warning=FALSE}
 n = 2500
-Ex = 1300
-dp = 400
+EX = 1300*2500
+VarX = 400**2 * 2500
+SdX = sqrt(VarX)
 
-Tdp = dp * sqrt(n)
-Tloss = n * Ex
+z = (EX * 1.01 - EX) / SdX
 
-b1 = Tloss * 1.01
-
-z = (b1 - Tloss)/Tdp
-
-p1 = 1-pnorm(z)
-print(p1) # 0.05208128
+p = 1 - pnorm(z)
+print(p)
 ```
 
 Como o teorema do limite central afirma que uma amostra tendendo ao infinito segue uma N(0,1), a probabilidade do pagamento do benefício ultrapassar 1% do valor esperado (\$3.282.500) é de aproximadamente 5.21%.
@@ -173,7 +169,7 @@ h(x) = \frac{f(x)}{S(x)} = \frac{S'(x)}{S(x)} = -\frac{d}{dx}\log(S(x)).
 **Resposta:**
 
 \begin{equation}
-S_{e}(x) = \frac{\int_{x}^{\infty} S(t),dt}{E[X]} =  \frac{\int_{x}^{\infty} S(t),dt}{e(0)}.
+S_{e}(x) = \frac{\int_{x}^{\infty} S(t)dt}{E[X]} =  \frac{\int_{x}^{\infty} S(t)dt}{e(0)}.
 \end{equation}
 
 (iv) Determine a função de vida média residual e(x).
@@ -181,7 +177,7 @@ S_{e}(x) = \frac{\int_{x}^{\infty} S(t),dt}{E[X]} =  \frac{\int_{x}^{\infty} S(t
 **Resposta:**
 
 \begin{equation}
-e(x) = \frac{\int_{x}^{\infty} tf(t),dt}{S(x)}.
+e(x) = \frac{\int_{x}^{\infty} tf(t)dt}{S(x)}.
 \end{equation}
 
 (v) Determine os limites \(\lim_{x \to \infty}\) h(x) e \(\lim_{x \to \infty} e(x)\).
@@ -193,3 +189,46 @@ e(x) = \frac{\int_{x}^{\infty} tf(t),dt}{S(x)}.
 **Resposta:**
 
 (vii) Esboce graficamente os resultados encontrados nos itens (i) a (vi).
+
+```{r}
+# Bibliotecas necessárias
+library(ggplot2)
+library(distr)
+
+# Definição das distribuições
+U1 <- dunif(0, 2)
+U2 <- dunif(0, 3)
+
+# Mistura balanceada (mesmos pesos) da U(0, 2) com a U(0, 3)
+X <- rbinom(10000, 1, 0.5) * U1 + (1 - rbinom(10000, 1, 0.5)) * U2
+
+# Mistura das variáveis aleatórias U(0, 2) e U(0, 3) na proporção 0.3 e 0.7
+Y <- rbinom(10000, 1, 0.3) * U1 + (1 - rbinom(10000, 1, 0.3)) * U2
+
+# Variável aleatória normal censurada à direita em x = 1
+Z <- rnorm(10000)
+Z[Z < 1] <- 1
+
+# Geração dos gráficos
+p <- ggplot(NULL, aes(x = NULL))
+
+# Gráfico da distribuição de X
+p + geom_density(data = data.frame(X), aes(x = X)) +
+  labs(title = "Distribuição de X") +
+  theme_classic()
+
+# Gráfico da distribuição de Y
+p + geom_density(data = data.frame(Y), aes(x = Y)) +
+  labs(title = "Distribuição de Y")
+
+# Gráfico da distribuição de Z
+p + geom_histogram(data = data.frame(Z), aes(x = Z), binwidth = 0.1, color = "black",
+                   fill = "lightblue") +
+  labs(title = "Distribuição de Z")
+
+# Gráficos das curvas de taxa de risco associadas
+curve(dunif(0, x)^2 + dunif(0, 3)^2, from = 0, to = 5, main = "Curva de Risco de X")
+curve((dunif(0, x)^2 * 0.3) + (dunif(0, 3)^2 * 0.7), from = 0, to = 5,
+     main = "Curva de Risco de Y")
+curve(dnorm(x)^2, from = -10, to = 10, main = "Curva de Risco de Z")
+```
