@@ -1,0 +1,38 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+subtitle: '1º Questão'
+title: 'Análise de Variáveis de Perda - Segundo Exercício Escolar'
+author: Felipe Pereira$^1$,
+        Gabriel D’assumpção de Carvalho$^2$,
+        Georgio Kokkosis De Freitas$^3$ 
+date: \today 
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true
+    toc_depth: 2
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}
+  \usepackage{authblk}
+  \renewcommand\Authfont{\normalsize}
+  \renewcommand\Affilfont{\itshape\small}
+  \setlength{\affilsep}{-0.5em}  % Adjust spacing between author and affiliation
+  \date{February 28, 2025}
+  \pagestyle{fancy}
+  \fancyhead[L]{Paper Abstract}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+  % Removed: \setlength{\authorsep}{0em}  <- NOT needed/supported here
+---
+
