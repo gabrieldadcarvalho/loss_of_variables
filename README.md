@@ -6,7 +6,9 @@ Este repositório é dedicado aos estudos e exercícios práticos realizados dur
 
 - **`exercise_list/`**: O exercício prático realizado ao longo da disciplina, abordando os conceitos de análise de variáveis de perda aplicada a linguagem de programação R.
 
-- **`Abstract/`**: Contém resumos de artigos científicos voltado para a área de variáveis de perda.
+- **`abstract/`**: Contém resumos de artigos científicos voltado para a área de variáveis de perda.
+
+- **`work/`**: É o diretório que tem o trabalho com 4 questões da disciplina.
 
 ## Contato
 

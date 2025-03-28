@@ -3,7 +3,7 @@ pdf_document:
   fig_caption: true
   number_sections: true
   dev: png
-subtitle: '1º Questão'
+subtitle: '2º Questão'
 title: 'Análise de Variáveis de Perda - Segundo Exercício Escolar'
 author: Felipe Pereira$^1$,
         Gabriel D’assumpção de Carvalho$^2$,
@@ -30,9 +30,185 @@ header-includes: |
   \setlength{\affilsep}{-0.5em}  % Adjust spacing between author and affiliation
   \date{February 28, 2025}
   \pagestyle{fancy}
-  \fancyhead[L]{Paper Abstract}
+  \fancyhead[L]{Análise de Variáveis de Perda}
   \fancyfoot[C]{Página \thepage}
   \fancyhead[C]{}
   % Removed: \setlength{\authorsep}{0em}  <- NOT needed/supported here
 ---
 
+\newpage
+
+# 2º Questão
+Realize um exercício simulado para uma política de stop-loss baseada no conceito de "stop-loss reinsurance" discutido na Seção 5 do trabalho proposto em Mahmoud (2014). Discuta os resultados da simulação em um estudo com foco nas medidas de risco VaR e TVaR associados à distribuição da perda agregada.
+
+## Hipóteses
+Suponha que temos uma carteira com $N$ pagamentos de benefícios, onde a ocorrência de sinistros segue uma distribuição binomial e o valor unitário do benefício $x_i$ segue uma distribuição gamma.
+
+$$
+N \sim Binomial(10^4, 0.3)
+$$
+Portanto a média de N vai ser aproximadamente 0.3
+
+$$
+x_i \sim Gamma(20, 10)
+$$
+
+Sendo assima $x_i$ vai ter uma média de 200.
+
+Assim, a soma agregada das perdas, $S$, é definida como a soma das perdas individuais $x_i$, ponderadas pela respectiva ocorrência de sinistro:
+
+$$
+S = \sum_{i=1}^{N} x_i
+$$
+Dado que o modelo considera uma política de stop-loss, a resseguradora cobre as perdas acima de um limite $D$, de modo que a perda retida pela seguradora é dada por:
+
+$$
+(S - D)_+ = \max(S - D, 0)
+$$
+
+Ou, de forma mais explícita:
+
+$$
+(S - D)_+ =
+\begin{cases}
+    0, & S < D \\
+    S - D, & S \geq D
+\end{cases}
+$$
+
+Essa função representa a parte das perdas que excede o limite $D$, caracterizando o impacto da política de stop-loss na retenção da seguradora.
+
+## Simulações
+
+Nesta etapa, realizaremos uma simulação para analisar a perda agregada. Inicialmente, iremos desconsiderar o limite $D$, e, em seguida, consideraremos o limite $D$ para observar o impacto de um contrato de resseguro na perda da seguradora.
+
+### Sem Stop-Loss Reinsurance
+
+```{r, warning=FALSE}
+# Carregar pacotes necessários
+library(ggplot2)
+
+# Número de simulações
+n_simulation = 10^4
+
+# Inicialização do vetor S
+S = numeric(n_simulation)
+
+# Definição de parâmetros
+n_client = 10^4  # Quantidade de clientes  
+p_norm = 0.3  # Probabilidade de ocorrência de sinistro
+
+# Parâmetros da distribuição Gamma
+x_shape = 20  
+x_scale = 10  
+
+# Simulação vetorizada
+N <- matrix(rbinom(n_simulation * n_client, 1, p_norm), nrow = n_simulation, 
+            ncol = n_client)
+X <- matrix(rgamma(n_simulation * n_client, shape = x_shape, scale = x_scale), 
+            nrow = n_simulation, ncol = n_client)
+
+# Cálculo vetorizado da soma agregada S
+S <- rowSums(N * X)
+
+# Converter para data frame para o ggplot2
+df <- data.frame(S = S)
+
+# Criar histograma com ggplot2
+ggplot(df, aes(x = S)) +
+  geom_histogram(aes(y = ..density..), bins = 50, fill = "red", color = "black", 
+                 alpha = 0.7) +
+  geom_density(color = "black", linewidth = 1) +  # Adiciona a curva de densidade
+  labs(title = "Distribuição da Soma Agregada S",
+       x = "Soma Agregada (S)",
+       y = "Densidade") +
+  theme_minimal()
+
+```
+
+Pode-se observar no histograma acima a distribuição da soma agregada após $10^5$ simulações. Nota-se que $S$ aparenta seguir uma distribuição Normal ou t-Student, sendo a t-Student mais indicada para modelagem de perdas financeiras, pois apresenta uma maior probabilidade de ocorrência de valores extremos.
+
+```{r}
+summary(S)
+```
+
+Ao analisar as estatísticas da soma agregada, observa-se que seu valor mínimo é de aproximadamente 565.716 unidades monetárias. Esse valor elevado deve-se ao fato de não considerarmos o valor de aquisição do seguro pelos clientes, mas apenas os pagamentos de benefícios para os segurados que sofreram sinistro. Além disso, a média e a mediana são praticamente idênticas, ambas próximas de 600.000, o que indica uma distribuição simétrica. Para confirmar essa simetria, podemos comparar a média adicionada e subtraída do desvio padrão com o primeiro e o terceiro quartil da distribuição.
+
+```{r}
+print(mean(S) - sd(S))
+print(mean(S) + sd(S))
+```
+
+Os resultados mostram que a diferença entre a média ajustada pelo desvio padrão e os quartis é de aproximadamente 3.000 unidades monetárias, o que representa apenas 0,512% de variação em relação à média.
+
+Dado que a distribuição de $S$ pode ser modelada por uma distribuição Normal, em conformidade com o Teorema Central do Limite, podemos estimar que a média da perda agregada seja de aproximadamente 600.074 unidades monetárias. Para uma análise mais aprofundada, podemos calcular as estatísticas de VaR e TVaR considerando níveis de confiança de 95% e 99%.
+
+```{r}
+alpha_95 = 0.95
+alpha_99 = 0.99
+
+var_95 = qnorm(alpha_95, mean = mean(S), sd = sd(S))
+var_99 = qnorm(alpha_99, mean = mean(S), sd = sd(S))
+tvar_95 = mean(S[S >= var_95])
+tvar_99 = mean(S[S >= var_99])
+```
+
+```{r}
+sprintf("VaR(S) 95%%: %.2f", var_95)
+```
+Podemos observar que, para a variável de perda agregada $S$, o **VaR de 95%** é de 605.742,90. Isso significa que a perda agregada $S$ tem uma probabilidade de 5% de ultrapassar o valor de 605.742,90.
+
+```{r}
+sprintf("VaR(S) 99%%: %.2f", var_99)
+```
+
+Ao analisar o **VaR de 99%**, podemos ver que a perda agregada $S$ tem uma probabilidade de 1% de exceder o valor de 612.281,21.
+
+```{r}
+sprintf("TVaR(S) 95%%: %.2f", tvar_95)
+```
+Para uma melhor interpretação, podemos observar que o **TVaR de 95%** é de aproximadamente 609.962,13. Isso significa que a média das 5% maiores perdas agregadas será de 609.962,13. Portanto, no pior cenário, considerando as 5% maiores perdas, o valor esperado será de 609.962,13.
+
+```{r}
+sprintf("TVaR(S) 99%%: %.2f", tvar_99)
+```
+Por fim, ao analisarmos o **TVaR de 99%**, podemos observar que, em média, 1% das maiores perdas serão de aproximadamente 615.323,93.
+
+### Com Stop-Loss Reinsurance
+
+Nesta simulação, vamos considerar que uma seguradora tenha um contrato de resseguro que cobre até 123.456 unidades monetárias da perda agregada. Com isso, iremos observar a distribuição da perda agregada considerando o impacto desse limite de cobertura.
+
+```{r}
+# Definir o valor do limite de resseguro
+D <- 10000
+
+# Simulação vetorizada
+N <- matrix(rbinom(n_simulation * n_client, 1, p_norm), nrow = n_simulation, 
+            ncol = n_client)
+x <- matrix(rgamma(n_simulation * n_client, shape = x_shape, scale = x_scale), 
+            nrow = n_simulation, ncol = n_client)
+
+# Cálculo da soma agregada S sem limite de resseguro
+S <- rowSums(N * x)
+
+# Aplicar o limite de resseguro usando ifelse() de forma vetorizada
+S <- ifelse(S <= D, 0, S - D)
+
+# Converter para data frame para o ggplot2
+df <- data.frame(S = S)
+
+# Criar histograma com ggplot2
+ggplot(df, aes(x = S)) +
+  geom_histogram(aes(y = ..density..), bins = 50, fill = "red", color = "black", 
+                 alpha = 0.7) +
+  geom_density(color = "black", linewidth = 1) +  # Adiciona a curva de densidade
+  labs(title = "Distribuição com Stop-Loss Reinsurance: Max{S-D, 0}",
+       x = "Soma Agregada com Stop-Loss Max{S-D, 0}",
+       y = "Densidade") +
+  theme_minimal()
+```
+
+\newpage
+# Referência
+
+Mahmoud, O. H. (2014). Construction Actuarial Model for Aggregate Loss under Exponentiated Inverted Weibull Distribution. Applied Mathematical Sciences, 8(162), 8085-8097.
