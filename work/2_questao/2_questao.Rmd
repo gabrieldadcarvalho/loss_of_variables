@@ -85,6 +85,7 @@ Nesta etapa, realizaremos uma simulação para analisar a perda agregada. Inicia
 ### Sem Stop-Loss Reinsurance
 
 ```{r, warning=FALSE}
+set.seed(42)
 # Carregar pacotes necessários
 library(ggplot2)
 
@@ -141,7 +142,7 @@ print(mean(S) + sd(S))
 
 Os resultados mostram que a diferença entre a média ajustada pelo desvio padrão e os quartis é de aproximadamente 3.000 unidades monetárias, o que representa apenas 0,512% de variação em relação à média.
 
-Dado que a distribuição de $S$ pode ser modelada por uma distribuição Normal, em conformidade com o Teorema Central do Limite, podemos estimar que a média da perda agregada seja de aproximadamente 600.074 unidades monetárias. Para uma análise mais aprofundada, podemos calcular as estatísticas de VaR e TVaR considerando níveis de confiança de 95% e 99%.
+Dado que a distribuição de $S$ pode ser modelada por uma distribuição Normal, em conformidade com o Teorema Central do Limite, podemos estimar que a média da perda agregada seja de aproximadamente 600.000 unidades monetárias. Para uma análise mais aprofundada, podemos calcular as estatísticas de VaR e TVaR considerando níveis de confiança de 95% e 99%.
 
 ```{r}
 alpha_95 = 0.95
@@ -156,57 +157,108 @@ tvar_99 = mean(S[S >= var_99])
 ```{r}
 sprintf("VaR(S) 95%%: %.2f", var_95)
 ```
-Podemos observar que, para a variável de perda agregada $S$, o **VaR de 95%** é de 605.742,90. Isso significa que a perda agregada $S$ tem uma probabilidade de 5% de ultrapassar o valor de 605.742,90.
+Podemos observar que, para a variável de perda agregada $S$, o **VaR de 95%** é de 615.536,76. Isso significa que a perda agregada $S$ tem uma probabilidade de 5% de ultrapassar o valor de  615.536,76.
 
 ```{r}
 sprintf("VaR(S) 99%%: %.2f", var_99)
 ```
-
-Ao analisar o **VaR de 99%**, podemos ver que a perda agregada $S$ tem uma probabilidade de 1% de exceder o valor de 612.281,21.
+Ao analisar o **VaR de 99%**, podemos ver que a perda agregada $S$ tem uma probabilidade de 1% de exceder o valor de 612.984,21.
 
 ```{r}
 sprintf("TVaR(S) 95%%: %.2f", tvar_95)
 ```
-Para uma melhor interpretação, podemos observar que o **TVaR de 95%** é de aproximadamente 609.962,13. Isso significa que a média das 5% maiores perdas agregadas será de 609.962,13. Portanto, no pior cenário, considerando as 5% maiores perdas, o valor esperado será de 609.962,13.
+Para uma melhor interpretação, podemos observar que o **TVaR de 95%** é de aproximadamente 619.482,24. Isso significa que a média das 5% maiores perdas agregadas será de 619.482,24. Portanto, no pior cenário, considerando as 5% maiores perdas, o valor esperado será de 619.482,24.
 
 ```{r}
 sprintf("TVaR(S) 99%%: %.2f", tvar_99)
 ```
-Por fim, ao analisarmos o **TVaR de 99%**, podemos observar que, em média, 1% das maiores perdas serão de aproximadamente 615.323,93.
+Por fim, ao analisarmos o **TVaR de 99%**, podemos observar que, em média, 1% das maiores perdas serão de aproximadamente 625.063,02.
 
 ### Com Stop-Loss Reinsurance
 
-Nesta simulação, vamos considerar que uma seguradora tenha um contrato de resseguro que cobre até 123.456 unidades monetárias da perda agregada. Com isso, iremos observar a distribuição da perda agregada considerando o impacto desse limite de cobertura.
+Nesta simulação, vamos considerar que uma seguradora tenha um contrato de resseguro que cobre até 10000 unidades monetárias da perda agregada. Com isso, iremos observar a distribuição da perda agregada considerando o impacto desse limite de cobertura.
 
 ```{r}
 # Definir o valor do limite de resseguro
-D <- 10000
+D = 10000
+
+S_stop = numeric(n_simulation)
 
 # Simulação vetorizada
-N <- matrix(rbinom(n_simulation * n_client, 1, p_norm), nrow = n_simulation, 
+N =matrix(rbinom(n_simulation * n_client, 1, p_norm), nrow = n_simulation, 
             ncol = n_client)
-x <- matrix(rgamma(n_simulation * n_client, shape = x_shape, scale = x_scale), 
+x = matrix(rgamma(n_simulation * n_client, shape = x_shape, scale = x_scale), 
             nrow = n_simulation, ncol = n_client)
 
 # Cálculo da soma agregada S sem limite de resseguro
-S <- rowSums(N * x)
+S_stop = rowSums(N * x)
 
 # Aplicar o limite de resseguro usando ifelse() de forma vetorizada
-S <- ifelse(S <= D, 0, S - D)
+S_stop = ifelse(S <= D, 0, S - D)
 
 # Converter para data frame para o ggplot2
-df <- data.frame(S = S)
+df_stop = data.frame(S_stop = S_stop)
 
 # Criar histograma com ggplot2
-ggplot(df, aes(x = S)) +
+ggplot(df_stop, aes(x = S_stop)) +
   geom_histogram(aes(y = ..density..), bins = 50, fill = "red", color = "black", 
                  alpha = 0.7) +
   geom_density(color = "black", linewidth = 1) +  # Adiciona a curva de densidade
-  labs(title = "Distribuição com Stop-Loss Reinsurance: Max{S-D, 0}",
-       x = "Soma Agregada com Stop-Loss Max{S-D, 0}",
+  labs(title = "Distribuição da Perda Agregada com Stop-Loss Reinsurance: Max{S-D, 0}",
+       x = "Max{S-D, 0}",
        y = "Densidade") +
   theme_minimal()
 ```
+
+Ao comparar com a distribuição do primeiro gráfico, podemos observar que a soma agregada com **stop-loss** não difere significativamente da soma agregada sem **stop-loss**. No entanto, o ponto médio da distribuição com **stop-loss** gira em torno de 590.000, o que representa uma diferença de aproximadamente 10.000, que é o valor da dedução **D**.
+
+```{r}
+summary(S_stop)
+```
+Analisando as estatísticas mais detalhadamente, percebemos que todas as medidas apresentaram uma dedução de 10.000, confirmando o impacto direto do valor do stop-loss na soma agregada.
+
+
+```{r}
+library(e1071)
+kurtosis(S_stop)
+```
+Além disso, a kurtosis obtida é próxima de zero, o que indica que a dispersão das caudas da variável **S** com **stop-loss** está muito próxima da kurtosis da distribuição **N(0,1)**, que é igual a 3. Com base nesse comportamento, podemos continuar utilizando a metodologia de cálculo do **VaR** e **TVaR** para distribuições normais.
+
+```{r}
+
+var_95_stop = qnorm(alpha_95, mean = mean(S_stop), sd = sd(S_stop))
+var_99_stop = qnorm(alpha_99, mean = mean(S_stop), sd = sd(S_stop))
+tvar_95_stop = mean(S_stop[S_stop >= var_95_stop])
+tvar_99_stop = mean(S_stop[S_stop >= var_99_stop])
+```
+
+```{r}
+sprintf("VaR(S) 95%%: %.2f", var_95_stop)
+```
+Ao analisar o **VaR de 95%** da perda com dedução, observamos uma redução exata de 10.000 em comparação com a soma agregada sem **stop-loss**. Portanto, com o **stop-loss**, a perda agregada tem uma probabilidade de 5% de ultrapassar o valor de 605.536,76.
+
+```{r}
+sprintf("VaR(S) 99%%: %.2f", var_99_stop)
+```
+Para o **VaR de 99%** da perda com dedução, também houve uma redução exata de 10.000, quando comparado com a distribuição sem **stop-loss**. Assim, a perda agregada com dedução tem uma probabilidade de 1% de ultrapassar a quantia de 611.984,21.
+
+
+```{r}
+sprintf("TVaR(S) 95%%: %.2f", tvar_95_stop)
+```
+Ao verificar o **TVaR(S) 95%**, que é uma medida mais explicativa, observamos que a dedução fez com que a média das 5% maiores perdas seja de aproximadamente 609.482,24. Esse valor reflete o impacto da dedução sobre os piores cenários da perda agregada.
+
+
+
+```{r}
+sprintf("TVaR(S) 99%%: %.2f", tvar_99_stop)
+```
+Finalizando com o **TVaR(S) 99%**, podemos concluir que a média das 1% maiores perdas será de aproximadamente 615.063,02. Esse valor é uma boa indicação do valor médio das perdas mais extremas, considerando a dedução **D**.
+
+
+# Conclusão
+
+Como visto ao longo da análise, a utilização de um **stop-loss**, que atua como uma redução na perda agregada, teve um impacto positivo na carteira da seguradora, diminuindo o valor total da perda. O efeito foi observável em todas as métricas de risco, como **VaR** e **TVaR**, evidenciando uma proteção adicional proporcionada pela reseguradora, reduzindo os piores cenários de perdas.
 
 \newpage
 # Referência
