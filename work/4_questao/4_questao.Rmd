@@ -1,0 +1,160 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+subtitle: '4º Questão'
+title: 'Análise de Variáveis de Perda - Segundo Exercício Escolar'
+author: Felipe Pereira$^1$,
+        Gabriel D’assumpção de Carvalho$^2$,
+        Georgio Kokkosis De Freitas$^3$ 
+date: \today 
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true
+    toc_depth: 2
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}
+  \usepackage{authblk}
+  \renewcommand\Authfont{\normalsize}
+  \renewcommand\Affilfont{\itshape\small}
+  \setlength{\affilsep}{-0.5em}  % Adjust spacing between author and affiliation
+  \date{February 28, 2025}
+  \pagestyle{fancy}
+  \fancyhead[L]{Análise de Variáveis de Perda}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+  % Removed: \setlength{\authorsep}{0em}  <- NOT needed/supported here
+---
+
+\newpage
+
+# 4º Questão
+Suponha uma variável aleatória $\Lambda>0$ e defina a função taxa de risco condicional (dado $\Lambda=\lambda$) de $X$ como $h_{X|\Lambda}(x|\lambda)=\lambda \cdot a(x)$, em que $a(x)$ representa uma `fragilidade' que busca mensurar incertezas associadas à função taxa de risco e que são incorporadas com base na experiência do analista atuarial.  
+
+1. De forma geral, descreva a função de sobreviência condicional $S_{X|\Lambda}(x|\lambda)$
+considerando a abordagem enunciada acima.
+2. Ilustre exemplos para escolhas de estruturas de fragilidade nesse tipo de modelagem.
+3. Utilizando-se de simulações, replique o `EXAMPLE 21.17' descrito abaixo:
+
+## 1º Resposta
+Sabemos que a função de risco é dada por:
+
+$$
+h(x) = \frac{f(x)}{S(x)} = \frac{-S'(x)}{S(x)} = -\frac{d}{dx} \log S(x)
+$$
+
+Ao integrar $h(x)$, recuperamos $\log S(x)$, e aplicando a exponencial, obtemos a função de sobrevivência:
+
+$$
+S(x) = e^{-\int_{0}^{x} h(t)dt}
+$$
+
+Portanto, considerando a taxa de risco condicional dada no enunciado:
+
+$$
+h_{X|\Lambda}(x|\lambda) = \lambda \cdot a(x)
+$$
+
+Substituímos na equação acima:
+
+$$
+S_{X|\Lambda}(x|\lambda) = \exp\left(-\int_{0}^{x} h_{X|\Lambda}(t|\lambda) dt\right) = \exp\left(-\lambda \int_{0}^{x} a(t) dt\right)
+$$
+
+Definindo a integral da fragilidade como:
+
+$$
+A(x) = \int_{0}^{x} a(t) dt
+$$
+
+A função de sobrevivência condicional pode ser reescrita de forma mais compacta como:
+
+$$
+S_{X|\Lambda}(x|\lambda) = \exp(-\lambda A(x))
+$$
+
+Essa formulação evidencia que a função de sobrevivência condicional depende diretamente da fragilidade acumulada até $x$, ponderada pelo parâmetro $\lambda$, que governa a incerteza na taxa de risco.
+
+Abaixo, ilustramos alguns exemplos para a escolha da fragilidade.
+
+## 2º Reposta
+
+### Estrutura com Risco Constante
+Supondo que a escolha de $a(x) = c$, onde $$c>0$$ é uma constante qualquer, temos:
+
+$$
+A(x) = \int_{0}^{x}c \,dx = c \cdot x
+$$
+
+Portanto, a função de sobrevivência será dada por:
+
+$$
+S_{X|\Lambda}(x|\lambda) = \exp(-\lambda \cdot c \cdot x)
+$$
+
+Como podemos observar, a variável $X$ segue uma distribuição exponencial com taxa $\lambda \cdot c$. Assim, a fragilidade $\lambda$ atua apenas como um fator de escala sobre uma taxa de risco constante.
+
+### Estrutura com Risco Weibull
+A modelagem com a distribuição Weibull é amplamente utilizada na análise de sobrevivência devido à sua flexibilidade, permitindo modelar riscos que podem diminuir, aumentar ou permanecer constantes ao longo do tempo, dependendo da escolha dos seus parâmetros. A função de risco da distribuição Weibull é dada por:
+
+$$
+h(x) = \frac{\beta}{\eta} \cdot \left(\frac{x}{\eta}\right)^{\beta - 1}
+$$
+
+Assim, temos as seguintes interpretações:
+
+- $\beta > 1 \Rightarrow$ $h(x)$ aumenta ao longo de $x$, sendo útil para modelar situações de desgaste ou envelhecimento, onde o risco tende a crescer com o tempo.
+- $\beta < 1 \Rightarrow$ $h(x)$ diminui ao longo de $x$, sendo aplicável em cenários como mortalidade infantil ou falhas de foguetes, onde o risco inicial é elevado, mas a sobrevivência melhora após o tempo inicial.
+- $\beta = 1 \Rightarrow$ $h(x) = \frac{1}{\eta}$, implicando um risco constante, adequado para modelagem em processos como teoria de filas.
+
+Agora, podemos modelar a fragilidade com a distribuição Weibull:
+
+$$
+a(x) = \frac{\beta}{\eta} \cdot \left(\frac{x}{\eta}\right)^{\beta - 1}
+$$
+
+A integral acumulada da fragilidade resulta em:
+
+$$
+A(x) = \int_{0}^{x}a(t)dt = \int_{0}^{x} \frac{\beta}{\eta} \cdot \left(\frac{t}{\eta}\right)^{\beta - 1} dt
+$$
+
+Reescrevendo:
+
+$$
+A(x) = \frac{\beta}{\eta^\beta} \int_{0}^{x} t^{\beta - 1} dt
+$$
+
+Resolvendo a integral:
+
+$$
+A(x) = \frac{\beta}{\eta^\beta} \left[\frac{t^\beta}{\beta}\right]_{0}^{x} = \left(\frac{x}{\eta}\right)^\beta
+$$
+
+Assim, a função de sobrevivência condicional será:
+
+$$
+S_{X|\Lambda}(x|\lambda) = \exp\left(-\lambda \left(\frac{x}{\eta}\right)^\beta\right)
+$$
+
+Sabemos que $\exp(-\infty)$ tende a zero, indicando que a probabilidade de sobrevivência diminui à medida que o risco acumulado da fragilidade aumenta.
+
+## Simulação
+
+\newpage
+
+# Referência
+
+BERNARDINO, W. Aula 2: Variáveis aleatórias em atuária. [Material de ensino]. Disponível em: Ambiente Virtual de Aprendizagem da . Acesso em: 29 mar. 2025.
+
+DISTRIBUIÇÃO de Weibull. In: WIKIPÉDIA, a enciclopédia livre. Disponível em: https://pt.wikipedia.org/wiki/Distribuição_de_Weibull. Acesso em: 29 mar. 2025.
