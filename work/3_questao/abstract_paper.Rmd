@@ -1,0 +1,93 @@
+---
+pdf_document:
+  fig_caption: true
+  number_sections: true
+  dev: png
+subtitle: 'Relatório de Análise de Dados utilizando Extreme Value Theory (EVT) para Sinistros de Incêndio'
+title: 'Análise de Variáveis de Perda - Segundo Exercício Escolar'
+author: Felipe Pereira$^1$,
+        Gabriel D’assumpção de Carvalho$^2$,
+        Georgio Kokkosis De Freitas$^3$ 
+date: \today 
+output:
+  bookdown::pdf_document2:
+    number_sections: true
+    toc: true
+    toc_depth: 2
+  pdf_document: default
+  html_document:
+    toc: true
+    toc_depth: '2'
+    df_print: paged
+params:
+  digits: 4
+header-includes: |
+  \usepackage{amsmath}
+  \usepackage{fancyhdr}
+  \usepackage{authblk}
+  \renewcommand\Authfont{\normalsize}
+  \renewcommand\Affilfont{\itshape\small}
+  \setlength{\affilsep}{-0.5em}  % Adjust spacing between author and affiliation
+  \date{February 28, 2025}
+  \pagestyle{fancy}
+  \fancyhead[L]{Análise de Variáveis de Perda}
+  \fancyfoot[C]{Página \thepage}
+  \fancyhead[C]{}
+---
+\newpage
+
+# Lista de Artigos
+
+A seguir, apresenta-se uma seleção de três artigos científicos com temas relevantes à gestão de ativos e passivos em fundos de pensão, análise de sobrevivência aplicada à mortalidade de participantes e mitigação de perdas em seguros contra incêndios florestais.
+
+---
+
+## **Gestão de Ativos e Passivos em Fundos de Pensão**
+
+- **Título:** *A Study of Asset and Liability Management Applied to Brazilian Pension Funds*  
+- **Revista:** [European Journal of Operational Research](https://www.scimagojr.com/journalsearch.php?q=22489&tip=sid&clean=0)  
+- **Link do artigo:** [ScienceDirect](https://www.sciencedirect.com/science/article/abs/pii/S0377221724008816)  
+- **Autores:** Wilton Bernardino, Rodrigo Falcão, João Jr., Raydonal Ospina, Filipe Costa de Souza, José Jonas Alves Correia  
+- **Resumo:** O artigo propõe um modelo de gestão de ativos e passivos (ALM) voltado para fundos de pensão brasileiros, utilizando dados nacionais. O objetivo é assegurar que os fundos possuam ativos suficientes para cumprir com os pagamentos futuros de aposentadorias, ao mesmo tempo em que gerenciam riscos de investimento de maneira eficiente.
+
+---
+
+## **Análise de Sobrevivência com Dados Incompletos em Fundos de Pensão**
+
+- **Título:** *Survival Analysis of Pension Scheme Mortality When Data Are Missing*  
+- **Revista:** [Scandinavian Actuarial Journal](https://www.scimagojr.com/journalsearch.php?q=20043&tip=sid&clean=0)  
+- **Link do artigo:** [Research Portal - Heriot-Watt University](https://researchportal.hw.ac.uk/en/publications/survival-analysis-of-pension-scheme-mortality-when-data-are-missi)  
+- **Autores:** Francesco Ungolo, Marcus C. Christiansen, Torsten Kleinow, Angus S. Macdonald  
+- **Resumo:** O estudo trata dos desafios enfrentados ao modelar a mortalidade de participantes de fundos de pensão na presença de dados ausentes. São utilizados modelos paramétricos de sobrevivência para estimar as taxas de mortalidade e avaliar os impactos financeiros decorrentes da incerteza nos dados.
+
+---
+
+## **Mitigação de Perdas de Incêndios Florestais via Títulos Ligados a Seguros**
+
+- **Título:** *Mitigating Wildfire Losses via Insurance‐Linked Securities: Modeling and Risk Management Perspectives*  
+- **Revista:** [Journal of Risk and Insurance](https://www.scimagojr.com/journalsearch.php?q=18617&tip=sid&clean=0)  
+- **Link do artigo:** [Wiley Online Library](https://onlinelibrary.wiley.com/doi/10.1111/jori.12449)  
+- **Autores:** Yuanyuan Li, Nan Liu, Howard Kunreuther  
+- **Resumo:** Este artigo propõe uma estrutura estatística baseada em modelos bayesianos de espaço de estados dinâmicos para prever perdas decorrentes de incêndios florestais. A proposta visa contribuir para o desenvolvimento de títulos vinculados a seguros (ILS), permitindo uma gestão de riscos mais eficiente por parte das seguradoras.
+
+---
+
+# Resumo: Gestão de Ativos e Passivos em Fundos de Pensão
+
+O artigo [**Gestão de Ativos e Passivos em Fundos de Pensão**](https://www.sciencedirect.com/science/article/abs/pii/S0377221724008816), publicado na *European Journal of Operational Research*, apresenta um estudo sobre a aplicação de técnicas de Asset and Liability Management (ALM) a fundos de pensão brasileiros. A ALM é fundamental para garantir que esses fundos mantenham ativos suficientes para cobrir seus passivos futuros (como pagamentos de aposentadorias), ao mesmo tempo que gerenciam adequadamente os riscos de investimento.
+
+O sistema previdenciário brasileiro baseia-se em três pilares: o Regime Geral de Previdência Social (RGPS), o Regime Próprio de Previdência Social (RPPS) e o Regime de Previdência Complementar (RPC). O RPC é operado por Entidades Fechadas e Abertas de Previdência Complementar (EFPC), sendo comumente adotado como complemento à aposentadoria oficial oferecida pelos dois primeiros regimes.
+
+Neste estudo, os autores propõem um modelo de ALM que visa minimizar as contribuições esperadas feitas pelos indivíduos durante sua vida ativa, respeitando restrições regulatórias e de fluxo de caixa. A função objetivo utiliza uma abordagem robusta de otimização min-max, com base em três cenários para a taxa CDI (Alta, Média e Baixa). O modelo é enriquecido por técnicas de aprendizado de máquina, como o CMARS (Conic Multivariate Adaptive Regression Splines), para prever intervalos de confiança dos principais parâmetros estocásticos relacionados aos retornos de ativos no mercado brasileiro. Toda a modelagem foi implementada utilizando o software GAMS.
+
+A base de dados contempla séries de retorno de sete ativos representativos do mercado (CDI, IPCA, IMA-B, Título IPCA de longo prazo, IBOVESPA, S&P 500 e MSCI) no período de 2000 a 2022. Tábuas de vida da SUSEP foram utilizadas para simulações atuariais, além de dados do fundo RPPS Reciprev (2022), utilizados para uma aplicação empírica.
+
+O modelo adota uma árvore de eventos para geração de cenários e calcula medidas de risco como Value-at-Risk (VaR), Conditional Value-at-Risk (CVaR) e risco de baixa. Perfis de gestores conservadores e agressivos são comparados quanto às alocações ideais de portfólio ao longo de um horizonte de 10 anos. Os resultados indicam que perfis mais arrojados tendem a alocar mais em ações (IBOVESPA), assumindo maior risco de baixa, porém mantendo custos médios de contribuição similares aos perfis conservadores. Já em cenários extremos de CDI, os gestores conservadores tendem a apresentar desempenho superior.
+
+No estudo de caso da RPPS Reciprev, o modelo é aplicado a dados reais do fundo, considerando novas classes de ativos como títulos baseados em curvas Price-Yield e empréstimos entre participantes. Os resultados destacam alocações ideais, fluxos de caixa, e projeções de retorno e índice de financiamento em diferentes cenários. A distribuição dos retornos acumulados apresenta assimetria positiva, e a estratégia proposta contribui para reduzir o risco de baixa com uma taxa de contribuição inferior à observada nos dados reais de 2022.
+
+O artigo também realiza uma revisão da literatura sobre ALM, ressaltando a escassez de estudos focados na modelagem matemática desses problemas no contexto brasileiro. Os autores recomendam que estudos futuros incorporem casos contínuos e estocásticos, restrições de cauda baseadas em CVaR, bem como modelos de seleção e agendamento de projetos no portfólio.
+
+Como desdobramento prático, o modelo desenvolvido foi incorporado ao aplicativo web da Reciprev, ferramenta que integra funcionalidades como ALM, cálculo de VaR, backtesting, análise de carteiras via Markowitz, entre outras métricas financeiras, oferecendo suporte à tomada de decisão por gestores previdenciários.
+
+Fonte complementar: [taisparanhos.com.br](https://www.taisparanhos.com.br/2024/12/pesquisadores-do-convenio-ufpe-reciprev.html)
