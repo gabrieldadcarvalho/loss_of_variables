@@ -57,7 +57,7 @@ Com base nesse conceito, o artigo apresenta métodos de precificação de prêmi
 
 ## **Princípio do Valor Esperado do Prêmio**
 
-O prêmio é determinado pelo valor esperado da perda, acrescido de uma margem de segurança \( \theta \), que representa um fator de ajuste para risco:
+O prêmio é determinado pelo valor esperado da perda, acrescido de uma margem de segurança $\theta$, que representa um fator de ajuste para risco:
 
 \begin{equation}
 H(X) = (1+\theta)\mathbb{E}[X], \hspace{0.3cm} \forall \hspace{0.2cm} \theta \geq 0
@@ -85,7 +85,6 @@ A princípio, a modelagem do prêmio gera um valor superior à perda esperada, a
 
 As medidas de risco para capital têm como objetivo determinar quanto capital uma seguradora deve manter para garantir que as perdas futuras sejam cobertas com alta probabilidade, assegurando a solvência da empresa.
 
-
 ## **Distribuição de Perda**
 
 A distribuição de perda é utilizada para mensurar o risco de uma variável observada de interesse, representando a perda associada a determinado evento. Por exemplo, pode-se analisar a distribuição de perdas em casos de óbito por câncer, colisões de veículos ou sinistros de incêndios residenciais, entre outros.
@@ -95,18 +94,18 @@ A seguir, apresentamos dois exemplos dessa aplicação:
 ### **Perda Normalmente Distribuida**
 
 ```{r, warning=FALSE}
-dNorm = dnorm(c(0:1000), mean=33, sd=109)
+dNorm <- dnorm(c(0:1000), mean = 33, sd = 109)
 ```
 
 ### **Perda com Distribuição de Pareto**
+
 ```{r, warning=FALSE}
 # Biblioteca da Distribuição de Pareto
-#install.packages("actuar")
+# install.packages("actuar")
 suppressPackageStartupMessages(library(actuar))
 
-dPareto = dpareto(c(1:1000), 39.660, shape = 2.2018)
+dPareto <- dpareto(c(1:1000), 39.660, shape = 2.2018)
 ```
-
 
 ```{r message=FALSE, warning=FALSE}
 library(ggplot2)
@@ -115,49 +114,52 @@ ggplot() +
   geom_line(aes(x = 0:1000, y = dNorm, color = "Normal"), size = 0.4) +
   geom_line(aes(x = 1:1000, y = dPareto, color = "Pareto"), size = 0.4) +
   geom_vline(xintercept = 0, color = "black", size = 0.2, linetype = "solid") +
-  labs(title = "Comparação das Distribuições Normal e Pareto\n",
-       x = "\nPerda",
-       y = "Densidade\n",
-       color = "Distribuição") +
+  labs(
+    title = "Comparação das Distribuições Normal e Pareto\n",
+    x = "\nPerda",
+    y = "Densidade\n",
+    color = "Distribuição"
+  ) +
   scale_color_manual(values = c("Normal" = "blue", "Pareto" = "red")) +
   scale_y_continuous(limits = c(0, NA)) +
   ylim(0, 0.005) +
   theme_minimal()
 ```
-Pode-se observar no gráfico acima que a distribuição de Pareto apresenta uma alta densidade de probabilidade para valores próximos de 0. No entanto, à medida que nos afastamos da origem, a densidade cai abruptamente, ficando inferior à da distribuição normal a partir de perdas em torno de 50. Ambas as distribuições possuem uma cauda leve, o que indica uma baixa probabilidade para perdas extremamente altas.
 
+Pode-se observar no gráfico acima que a distribuição de Pareto apresenta uma alta densidade de probabilidade para valores próximos de 0. No entanto, à medida que nos afastamos da origem, a densidade cai abruptamente, ficando inferior à da distribuição normal a partir de perdas em torno de 50. Ambas as distribuições possuem uma cauda leve, o que indica uma baixa probabilidade para perdas extremamente altas.
 
 ```{r}
 # Calcular a diferença entre as densidades
 diff_density <- dNorm - dPareto
-diff_density = diff_density[0:999]
+diff_density <- diff_density[0:999]
 # Criar o gráfico de linha com ggplot
 ggplot(data = data.frame(x = c(1:999), y = diff_density), aes(x = x, y = y)) +
   geom_line(color = "blue") +
-  labs(title = "Diferença entre as Densidades da Distribuição Normal e Pareto",
-       x = "Valor (0:1000)",
-       y = "Diferença entre as Densidades") +
+  labs(
+    title = "Diferença entre as Densidades da Distribuição Normal e Pareto",
+    x = "Valor (0:1000)",
+    y = "Diferença entre as Densidades"
+  ) +
   theme_minimal()
-
 ```
-Entre as perdas de 250 a 1000, a diferença de densidade entre as distribuições é quase nula, sugerindo que ambas exibem um comportamento similar para perdas elevadas. Contudo, a distribuição de Pareto tem uma densidade maior para perdas pequenas, enquanto a distribuição normal apresenta uma probabilidade mais alta de ocorrência para perdas na faixa entre 50 e 250.
 
+Entre as perdas de 250 a 1000, a diferença de densidade entre as distribuições é quase nula, sugerindo que ambas exibem um comportamento similar para perdas elevadas. Contudo, a distribuição de Pareto tem uma densidade maior para perdas pequenas, enquanto a distribuição normal apresenta uma probabilidade mais alta de ocorrência para perdas na faixa entre 50 e 250.
 
 ## **Value at Risk (VAR) - a Medida de Risco Quantil**
 
-O **VaR** é uma medida de risco baseada em quantis, normalmente expressa com um nível de confiança (\(\alpha\)) entre 95% e 99%. Essa métrica indica o valor máximo de perda que um portfólio ou ativo pode sofrer em um determinado período, com uma probabilidade de não ser excedido dentro do intervalo de confiança escolhido.
+O **VaR** é uma medida de risco baseada em quantis, normalmente expressa com um nível de confiança ($\alpha$) entre 95% e 99%. Essa métrica indica o valor máximo de perda que um portfólio ou ativo pode sofrer em um determinado período, com uma probabilidade de não ser excedido dentro do intervalo de confiança escolhido.
 
-Por exemplo, um **VaR a 95%** representa o valor da perda que **não será ultrapassado em 95% dos casos**. Ou seja, em 95% das vezes, as perdas serão menores ou iguais ao valor calculado como **\(Q_{95}\)**.
+Por exemplo, um **VaR a 95%** representa o valor da perda que **não será ultrapassado em 95% dos casos**. Ou seja, em 95% das vezes, as perdas serão menores ou iguais ao valor calculado como $Q_{95}$.
 
-Entretanto, ao calcular o VaR, pode ocorrer que a variável analisada não tenha exatamente um valor para o **\(Q_{\alpha}\)**, mas apenas uma massa de probabilidade ao seu redor. Para lidar com isso, vamos definir para o caso discreto:
+Entretanto, ao calcular o VaR, pode ocorrer que a variável analisada não tenha exatamente um valor para o $Q_{\alpha}$, mas apenas uma massa de probabilidade ao seu redor. Para lidar com isso, vamos definir para o caso discreto:
 
 \begin{equation}
 H(X) = Q_{\alpha} = \min \left\{ Q : P[X \leq Q] \geq \alpha \right\}
 \end{equation}
 
-A função acima representa que, para uma distribuição discreta, o **\(Q_{\alpha}\)** será dado pelo menor valor de perda **\(X\)** que tenha probabilidade acumulada maior ou igual ao nível de confiança **\(\alpha\)**. Por exemplo, dada a seguinte variável aleatória:
+A função acima representa que, para uma distribuição discreta, o $Q_{\alpha}$ será dado pelo menor valor de perda $X$ que tenha probabilidade acumulada maior ou igual ao nível de confiança $\alpha$. Por exemplo, dada a seguinte variável aleatória:
 
-\[
+$$
 L = 
 \begin{cases}
 100 & \text{com probabilidade } 0.005 \\
@@ -165,18 +167,18 @@ L =
 10  & \text{com probabilidade } 0.10 \\
 0   & \text{com probabilidade } 0.85
 \end{cases}
-\]
+$$
 
 Temos a seguinte tabela de probabilidade acumulada:
 
-| \(x\) | \(P[L \leq x]\) |
-|------|-----------------|
-| 100  | 1.00            |
-| 50   | 0.995           |
-| 10   | 0.95            |
-| 0    | 0.85            |
+| $x$ | $P[L \leq x]$ |
+|-----|---------------|
+| 100 | 1.00          |
+| 50  | 0.995         |
+| 10  | 0.95          |
+| 0   | 0.85          |
 
-Se escolhermos analisar um VaR com 99% de confiança, não conseguimos um valor exato para o **\(Q_{99}\)**. Nesse caso, devemos pegar o menor valor de **\(x\)** que tenha probabilidade maior ou igual a 99%, o que, neste exemplo, seria **\(x = 5\)**.
+Se escolhermos analisar um VaR com 99% de confiança, não conseguimos um valor exato para o $Q_{99}$. Nesse caso, devemos pegar o menor valor de $x$ que tenha probabilidade maior ou igual a 99%, o que, neste exemplo, seria $x = 5$.
 
 Para os casos contínuos, o VaR é dado por:
 
@@ -193,7 +195,7 @@ P[X \leq Q_{99}] = 0.99
 \end{equation}
 
 ```{r}
-q99Norm = qnorm(0.99, mean=33, sd=109)
+q99Norm <- qnorm(0.99, mean = 33, sd = 109)
 print(q99Norm)
 ```
 
@@ -203,9 +205,8 @@ A partir dessa equação, podemos calcular que o **VaR a 99%** é igual a **286,
 
 Para uma distribuição de Pareto com média de 33 e desvio padrão de 109, o **VaR a 99%** é dado por:
 
-
 ```{r}
-q99Pareto = qpareto(0.99, 39.660, shape = 2.2018)
+q99Pareto <- qpareto(0.99, 39.660, shape = 2.2018)
 print(q99Pareto)
 ```
 
@@ -213,15 +214,15 @@ Uma característica importante de uma variável que segue uma distribuição de 
 
 ## **Conditional Tail Expectation (CTE)**
 
-O **CTE** (Conditional Tail Expectation), também conhecido como **Tail-VaR**, é uma medida complementar ao **VaR**. Ele analisa a **pior das hipóteses** em relação às perdas, concentrando-se no valor da **cauda** da distribuição, com uma probabilidade de \(1 - \alpha\). O CTE é dado pela fórmula:
+O **CTE** (Conditional Tail Expectation), também conhecido como **Tail-VaR**, é uma medida complementar ao **VaR**. Ele analisa a **pior das hipóteses** em relação às perdas, concentrando-se no valor da **cauda** da distribuição, com uma probabilidade de $1 - \alpha$. O CTE é dado pela fórmula:
 
 \begin{equation}
 CTE = \mathbb{E}[X | X > Q_{\alpha}]
 \end{equation}
 
-onde \( \mathbb{E}[X | X > Q_{\alpha}] \) é a **expectativa condicional de X** dado que **X** é maior que \(Q_{\alpha}\), ou seja, a média das perdas acima do quantil \(Q_{\alpha}\).
+onde $\mathbb{E}[X | X > Q_{\alpha}]$ é a **expectativa condicional de X** dado que **X** é maior que $Q_{\alpha}$, ou seja, a média das perdas acima do quantil $Q_{\alpha}$.
 
-Contudo, em algumas distribuições, a variável de perda \(X\) pode ter múltiplos valores com probabilidades iguais, fazendo com que haja mais de um valor para \(Q_{\alpha}\) (por exemplo, para **$Q_{95}$**). Isso gera uma situação diferente do VaR, onde precisamos considerar a maior perda \(X\) associada a \(Q_{\alpha}\). Assim, definimos:
+Contudo, em algumas distribuições, a variável de perda $X$ pode ter múltiplos valores com probabilidades iguais, fazendo com que haja mais de um valor para $Q_{\alpha}$ (por exemplo, para $Q_{95}$). Isso gera uma situação diferente do VaR, onde precisamos considerar a maior perda $X$ associada a $Q_{\alpha}$. Assim, definimos:
 
 \begin{equation}
 \beta' = \max\{\beta : Q_{\alpha} = Q_{\beta}\}
@@ -229,9 +230,9 @@ Contudo, em algumas distribuições, a variável de perda \(X\) pode ter múltip
 
 A partir disso, o CTE é uma **combinação ponderada** de dois termos:
 
-1. **\((\beta' - \alpha) Q_{\beta}\)**: Este termo leva em consideração a probabilidade de repetição dos quantis devido à massa de probabilidade ao redor de \(Q_{\alpha}\), ponderando a maior perda associada ao quantil \(Q_{\beta}\).
+1.  $(\beta' - \alpha) Q_{\beta}$: Este termo leva em consideração a probabilidade de repetição dos quantis devido à massa de probabilidade ao redor de $Q_{\alpha}$, ponderando a maior perda associada ao quantil $Q_{\beta}$.
 
-2. **\((1 - \beta') \mathbb{E}[X | X > Q_{\alpha}]\)**: Este termo representa as perdas além da massa de probabilidade e leva em conta a expectativa condicional das perdas maiores que \(Q_{\alpha}\).
+2.  $(1 - \beta') \mathbb{E}[X | X > Q_{\alpha}]$: Este termo representa as perdas além da massa de probabilidade e leva em conta a expectativa condicional das perdas maiores que $Q_{\alpha}$.
 
 Portanto, a fórmula final do CTE é dada por:
 
@@ -243,28 +244,28 @@ Essa fórmula ajustada assegura que o CTE capture corretamente a cauda da distri
 
 Com isso, podemos ver o exemplo abaixo:
 
-\[
+$$
 X = 
 \begin{cases}
 0 & \text{com probabilidade } 0.9 \\
 100  & \text{com probabilidade } 0.06 \\
 1000  & \text{com probabilidade } 0.04 \\
 \end{cases}
-\]
+$$
 
-O cálculo do **$CTE_{0.90}$** será feito como uma **soma ponderada** dos valores das perdas acima do quantil **$Q_{90} = 0$**. Ou seja, vamos considerar as perdas que são superiores a 0 (ou seja, as perdas de 100 e 1000), ponderadas pelas suas respectivas probabilidades.
+O cálculo do $CTE_{0.90}$ será feito como uma **soma ponderada** dos valores das perdas acima do quantil $Q_{90} = 0$. Ou seja, vamos considerar as perdas que são superiores a 0 (ou seja, as perdas de 100 e 1000), ponderadas pelas suas respectivas probabilidades.
 
-O **$CTE_{0.90}$** é dado pela fórmula:
+O $CTE_{0.90}$ é dado pela fórmula:
 
-\[
+$$
 CTE_{0.90} = \frac{(0.06 \times 100) + (0.04 \times 1000)}{(0.04 + 0.06)} = 406
-\]
+$$
 
-Portanto, o **$CTE_{0.90}$** indica que, dado que a perda ultrapassou o quantil de 90%, a média das perdas será **406 unidades monetárias**.
+Portanto, o $CTE_{0.90}$ indica que, dado que a perda ultrapassou o quantil de 90%, a média das perdas será **406 unidades monetárias**.
 
 ### **CTE da Distribuição Normal**
 
-Abaixo, apresentamos o cálculo do **$CTE_{0.95}$** para uma distribuição normal com média 33 e desvio padrão 109. O primeiro passo é calcular o **quantil de 95%** para a variável **$X \sim N(33, 109)$**. Em seguida, padronizamos esse quantil para a distribuição normal padrão **$X \sim N(0, 1)$**, para obter a densidade correspondente a esse quantil. Por fim, calculamos o **CTE**, que nos fornece a **expectativa condicional** para as perdas além do quantil.
+Abaixo, apresentamos o cálculo do $CTE_{0.95}$ para uma distribuição normal com média 33 e desvio padrão 109. O primeiro passo é calcular o **quantil de 95%** para a variável $X \sim N(33, 109)$. Em seguida, padronizamos esse quantil para a distribuição normal padrão $X \sim N(0, 1)$, para obter a densidade correspondente a esse quantil. Por fim, calculamos o **CTE**, que nos fornece a **expectativa condicional** para as perdas além do quantil.
 
 ```{r}
 mu <- 33
@@ -282,5 +283,4 @@ cte95 <- mu + (sd / (1 - qt)) * phi_z95
 print(cte95)
 ```
 
-No caso da variável **$X \sim N(33, 109)$**, o **$CTE_{0.95}$** indica que as **5% piores perdas** terão, em média, uma perda de **257.84 unidades monetárias**.
-
+No caso da variável $X \sim N(33, 109)$, o $CTE_{0.95}$ indica que as **5% piores perdas** terão, em média, uma perda de **257.84 unidades monetárias**.
